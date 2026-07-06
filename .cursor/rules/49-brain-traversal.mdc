@@ -1,0 +1,62 @@
+---
+alwaysApply: true
+description: "Contrat de traversee du cerveau-graphe (librarian-mcp) - entrer par MAP, cheminer A->B, tracer le chemin"
+---
+
+# Brain Traversal Contract V17
+
+Le cerveau Obsidian est un graphe. Moteur : serveur MCP `librarian` (vault partage). Ne pas lire le vault a l aveugle : **cheminer** de neurone en neurone.
+
+## Outils (serveur librarian)
+
+| Outil | Args | Usage |
+|-------|------|-------|
+| `library_traverse` | `start`, `depth` (1-3) | Voisinage BFS d un neurone |
+| `library_shortest_path` | `from`, `to` | Chemin A->B (GPS) |
+| `library_search` | `query` | Trouver un point d entree si MAP inconnu |
+| `library_read` | `path` | Ouvrir une note - **chemin complet + .md** |
+| `library_graph_analysis` | - | Hubs, ponts, orphelins |
+| `library_write` | `path`, `content` | Ecrire une lecon (auto-wikilinks) |
+
+## Cheminement impose (non trivial)
+
+1. **Entrer** par le MAP du domaine : `MAP-<domaine>` (automation, gaming, homelab, moonlight, padel, pricing, trading). Si domaine inconnu : `library_search` puis rejoindre un MAP.
+2. **Sauter** : `library_traverse` depuis le MAP (depth 1-2) pour voir erreurs, sessions, capsules, domaines lies.
+3. **Lire les erreurs AVANT tout debug** (neurones `erreurs/*`).
+4. **Relier A->B** : `library_shortest_path` pour connecter le probleme a une lecon existante.
+5. **Reflechir / rechercher** : si la solution n existe pas dans le graphe -> library-first (`43`) puis recherche externe (doc officielle, GitHub) ; acquisition skill via `find-skills` (voir `46`, catalogue `domains/cursor-skills`).
+6. **Resoudre**, puis **closeout** : ecrire la lecon (voir `44`) reliee au MAP.
+
+## Resolution noms -> chemins (IMPORTANT)
+
+`library_traverse`/`shortest_path` renvoient des noms **bruts** (ex `padel`, `2026-06-29-trading-charter`).
+`library_read` exige le **chemin complet + extension**. Mapping :
+
+| Noeud brut | Chemin `library_read` |
+|-----|-----|
+| une erreur (`padel`, `moonlight`...) | `erreurs/<nom>.md` |
+| une session (`2026-...`) | `sessions/<nom>.md` |
+| un MAP (`MAP-padel`) | `domains/<domaine>/MAP-<domaine>.md` |
+
+Depth : commencer a **1** sur le MAP ; les liens MAP<->MAP sont des sauts **volontaires**, pas une expansion auto (depth 2 sur un MAP tire tout le cluster voisin).
+
+## Regles dures
+
+- **N:** lire le vault en vrac sans passer par un MAP.
+- **A:** priorite **repo > vault** : si le code contredit une note, le code gagne et la note doit etre corrigee.
+- **A:** limite de sauts raisonnable (depth <= 3) ; ne pas errer.
+- **A:** noms de notes **uniques** (regle d or librarian) ; liens en nom brut `[[nom]]` ; jamais recreer un `README.md`/`MAP.md` en doublon.
+- **N:** ecrire dans `_backup/` (exclu du graphe via `.librarianignore`).
+
+## Trace de chemin (obligatoire, tache non triviale)
+
+Terminer par une trace factuelle :
+
+```
+CHEMIN: MAP-<domaine> -> <neurone> -> <neurone> -> solution
+ERREURS_LUES: [[...]]
+CONTRADICTION_REPO_VAULT: oui/non (+ correction)
+SKILL: competence_deja_disponible | skill_a_importer | skill_a_adapter | nouvelle_solution_justifiee
+```
+
+Skill detaillee : `.agents/skills/brain-traverse/SKILL.md`.

@@ -1,0 +1,40 @@
+---
+alwaysApply: true
+description: "SDD V03 — spec/plan/tasks obligatoire, consulter spec existante avant d'en creer"
+---
+
+# Spec-Driven Workflow V03
+
+## Quand activer (OBLIGATOIRE)
+
+- Nouvelle feature ou evolution pipeline
+- Refactoring multi-fichiers (> 1 fichier)
+- Changement architecture ou contrat API
+- Toute demande utilisateur « multi-fichiers » ou « feature »
+
+## Carve-out etroit
+
+- 1 ligne, 1 fichier, typo/commentaire
+- Question explicative sans modification
+
+## Sequence
+
+1. **Consulter** `specs/NNN-*/spec.md` existant + spec domaine `02_Base/`
+2. Si insuffisant : creer `specs/NNN-feature/spec.md`
+3. `plan.md` valide avant code
+4. `tasks.md` valide avant code
+5. Implementation guidee par tasks
+
+Chaque etape validee avant la suivante.
+
+## Regles implementation
+
+- Scope strict du spec
+- MAJ `tasks.md` en cours
+- Tests/lint avant cloture
+- Non-regression perimetre touche
+- MAJ note Obsidian session si apprentissage nouveau
+
+## Templates
+
+`.specify/templates/spec-template.md`, `plan-template.md`, `tasks-template.md`

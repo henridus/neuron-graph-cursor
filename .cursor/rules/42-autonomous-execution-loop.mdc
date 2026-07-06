@@ -1,0 +1,64 @@
+---
+alwaysApply: true
+description: "Mode autonome long-run - execution par phases avec preuves, checkpoints et non-regression obligatoire"
+---
+
+# Autonomous Execution Loop
+
+## Objectif
+
+Pour toute demande technique non triviale, travailler en mode autonome jusqu'au bout:
+- cadrage par phase,
+- implementation complete,
+- verification (tests/lint),
+- compte-rendu avec preuves.
+
+## Boucle obligatoire
+
+1. **Cadre**: confirmer l'objectif et annoncer la phase en cours.
+2. **Execution**: implementer sans s'arreter a la theorie.
+3. **Verification**: lancer les checks pertinents (au minimum tests cibles + regressions proches).
+4. **Checkpoint**: communiquer resultat, risques, et prochaine phase.
+5. **Continuation**: avancer automatiquement vers la phase suivante sauf blocage reel.
+
+## Anti-pattern principal
+
+**Interdit** : s'arreter apres une phase simplement parce qu'une phase vient d'etre terminee.
+
+Si la demande utilisateur couvre plusieurs etapes implicites ou explicites :
+- continuer jusqu'au bout du perimetre accessible,
+- ne s'arreter qu'en cas de blocage reel, arbitrage produit, ou fin objective du travail,
+- produire un rapport final seulement quand l'ensemble est termine.
+
+## Contrat de phase
+
+Chaque phase doit expliciter:
+- **Entree**: preconditions et fichiers concerns.
+- **Sortie**: changements attendus et definition of done.
+- **Preuve**: commande(s) de verification et resultat factuel.
+- **Suite**: prochaine phase a lancer automatiquement si aucun blocage ne l'empeche.
+
+Ne pas marquer une phase terminee sans preuve.
+
+## Regles de qualite
+
+- Pas de changements hors scope sans validation.
+- Pas de regression silencieuse: si un test casse, corriger ou documenter clairement.
+- Toujours privilegier la correction complete (pas de demi-fix).
+- Mettre a jour la doc de suivi (spec/tasks/rules) quand le comportement evolue.
+
+## Gestion des blocages
+
+Si blocage:
+- diagnostiquer la cause racine,
+- proposer une option de contournement minimale,
+- continuer de facon autonome sur le reste parallelement possible,
+- ne demander l'arbitrage utilisateur que si decision produit necessaire.
+
+## Cloture
+
+Ne conclure la tache qu'apres :
+- execution du perimetre demande,
+- verification pertinente,
+- mise a jour memoire / docs si necessaire,
+- rapport final avec preuves, limites et prochaine action utile seulement si elle reste hors scope.

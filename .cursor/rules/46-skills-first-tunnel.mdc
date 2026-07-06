@@ -1,0 +1,30 @@
+---
+description: "Skills-first - Cursor auto-discovery + catalogue vault optionnel"
+alwaysApply: true
+---
+
+# Skills-First Tunnel V04
+
+## Deux couches (ne pas confondre)
+
+| Couche | Chemin | Role |
+|--------|--------|------|
+| **Execution Cursor** | `.cursor/skills/`, `~/.cursor/skills/` | Auto-discovery par `description` ; lire `SKILL.md` si domaine match |
+| **Catalogue fleet** | vault `domains/cursor-skills/INDEX.md` | Referentiel partage ; deja injecte via `brain-load` si `trust_brain` |
+
+## Regle
+
+1. Si skill projet/perso match le sujet : `competence_deja_disponible` et suivre `SKILL.md`.
+2. Sinon consulter l index vault (deja dans brain) pour `skill_a_importer` / `skill_a_adapter`.
+3. Creer du neuf : `nouvelle_solution_justifiee` seulement apres etapes 1-2.
+
+## trust_brain
+
+Injection `00-brain-active.mdc` = contexte seulement. **N:** ne remplace pas `skills_index_read` ni `brain_tunnel_ok` dans les gates.
+
+## Issues
+
+- `competence_deja_disponible`
+- `skill_a_importer`
+- `skill_a_adapter`
+- `nouvelle_solution_justifiee`

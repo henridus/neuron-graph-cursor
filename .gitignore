@@ -1,0 +1,20 @@
+# Runtime files (generated per session, not tracked)
+.cursor/agent-gates.json
+.cursor/rules/00-brain-active.mdc
+.cursor/research/
+.cursor/memory.config.json
+
+# Personal vault (not included — use vault-starter/ as template)
+AgentMemory/
+01_Souvenir/
+reports/
+
+# Node / build
+node_modules/
+*.log
+dist/
+
+# OS
+.DS_Store
+Thumbs.db
+desktop.ini

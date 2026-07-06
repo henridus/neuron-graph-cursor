@@ -1,0 +1,69 @@
+---
+alwaysApply: true
+description: "Memoire V04 — cerveau central Obsidian, handoff auto, miroir offline"
+---
+
+# Memory Obsidian V04 — Cerveau unique
+
+## Principe fleet
+
+**Un cerveau, N coquilles** : tous les agents `00_Cursor/` partagent le meme vault Obsidian.
+Chaque coquille a son `agentId` mais lit/ecrit dans le meme hub (`00_INDEX`, `erreurs/`, `sessions/`).
+
+## Source de verite
+
+**Obsidian vault** = cerveau unique partage par tous les agents.
+Config : `.cursor/memory.config.json`
+
+| Champ | Role |
+|-------|------|
+| `brainMode: central` | Lire/ecrire vault uniquement — jamais `01_Souvenir` comme source |
+| `vaultPath` | Chemin vault Obsidian (identique pour tous) |
+| `agentId` | Identifiant stable de la coquille |
+| `agentNote` | Note Obsidian `agents/{agentId}.md` |
+| `requiredReads` | Fichiers charges dans `brain-load.ps1` (index, erreurs, biblio, skills, note agent) |
+
+## Chargement V16
+
+1. Hook `sessionStart` appelle `brain-load.ps1` — **digest reel** vault dans `additional_context`
+2. Ecrit `.cursor/rules/00-brain-active.mdc` avec extrait digest
+3. `brain_ok=true` dans `agent-gates.json` apres injection
+4. **N:** tunnel Read stateful (`brain_tunnel_ok`) — abandonne (non fiable Cursor)
+5. Audit methodo au `stop` via `stop-depth-audit` (followup, non bloquant)
+
+## Handoff V04
+
+- Hook `stop` appelle `.cursor/hooks/brain-handoff.ps1`
+- Ecriture automatique de `sessions/YYYY-MM-DD-{topic}.md`
+- MAJ obligatoire de `sessions/_HANDOFF.md`
+- Sync vers `01_Souvenir/`
+
+## Quand lire (OBLIGATOIRE)
+
+| Moment | Fichiers |
+|--------|----------|
+| Debut session multi-fichiers | `00_INDEX.md` + `agents/{agentId}.md` + `sessions/_HANDOFF.md` + note domaine |
+| Audit/plan multi-fichiers | `00_INDEX.md` + note agent + `domains/cursor-skills/INDEX.md` + spec utile |
+| Bug deja vu | `erreurs/INDEX.md` + note erreur cible |
+| Fin session significative | Ecrire note `sessions/YYYY-MM-DD-{sujet}.md` |
+
+## Regles
+
+- **A:** citer note Obsidian consultee si decision basee sur memoire
+- **A:** en audit/plan, citer aussi `domains/cursor-skills/INDEX.md` si la competence partagee a servi au jugement
+- **A:** verifier `00-brain-active.mdc` regenere en debut de session
+- **N:** dupliquer de longues specs dans le vault (mettre des liens)
+- **N:** ecrire apprentissages dans `01_Souvenir/` quand le vault est accessible
+
+## Preuve d'usage
+
+- **A:** une note Obsidian citee doit etre reliee a une decision concrete, pas seulement mentionnee.
+- **A:** si l'agent dit avoir utilise le cerveau, il doit montrer ce que la note a change dans son raisonnement.
+
+## Obsidian Bases (couche visualisation)
+
+- Schema vault: `_system/SCHEMA.md` dans AgentMemory
+- Bases: `_system/bases/sessions.base`, `erreurs.base`, `agents.base`
+- **A:** nouvelles notes session/erreur/agent avec frontmatter YAML (`type` obligatoire)
+- **A:** `erreurs/INDEX.md` et `agents/00_REGISTRY.md` restent lus par brain-load
+- **N:** remplacer les INDEX par les Bases seules

@@ -1,0 +1,12 @@
+---
+alwaysApply: true
+description: "Gates V16 anti-brick"
+---
+# Enforcement Gates V16
+
+1. sessionStart : brain-load injecte **digest reel** vault -> brain_ok=true
+2. Write/Shell/Task : brain_ok requis (pas de tunnel Read)
+3. Surface reparation (.cursor/hooks, rules, tests/hooks) : toujours writable
+4. failClosed: false — erreur hook = allow (jamais brick)
+5. Audit methodo : stop-depth-audit (followup, non bloquant)
+6. ENFORCEMENT_MAINTENANCE=1 : break-glass

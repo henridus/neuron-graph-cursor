@@ -1,0 +1,79 @@
+﻿{
+    "version":  1,
+    "hooks":  {
+                  "sessionStart":  [
+                                       {
+                                           "command":  "powershell -NoProfile -ExecutionPolicy Bypass -File .cursor/hooks/session-start.ps1",
+                                           "timeout":  25
+                                       }
+                                   ],
+                  "preToolUse":  [
+                                     {
+                                         "command":  "powershell -NoProfile -ExecutionPolicy Bypass -File .cursor/hooks/gate-write-unified.ps1",
+                                         "matcher":  "Write|StrReplace|EditNotebook",
+                                         "timeout":  10,
+                                         "failClosed":  false
+                                     },
+                                     {
+                                         "command":  "powershell -NoProfile -ExecutionPolicy Bypass -File .cursor/hooks/gate-delete-triage.ps1",
+                                         "matcher":  "Delete",
+                                         "timeout":  10,
+                                         "failClosed":  false
+                                     },
+                                     {
+                                         "command":  "powershell -NoProfile -ExecutionPolicy Bypass -File .cursor/hooks/gate-task-triage.ps1",
+                                         "matcher":  "Task",
+                                         "timeout":  10,
+                                         "failClosed":  false
+                                     },
+                                     {
+                                         "command":  "powershell -NoProfile -ExecutionPolicy Bypass -File .cursor/hooks/track-web-research.ps1",
+                                         "matcher":  "WebSearch|WebFetch",
+                                         "timeout":  5,
+                                         "failClosed":  false
+                                     },
+                                     {
+                                         "command":  "powershell -NoProfile -ExecutionPolicy Bypass -File .cursor/hooks/track-librarian-pretool.ps1",
+                                         "matcher":  "CallMcpTool",
+                                         "timeout":  5,
+                                         "failClosed":  false
+                                     }
+                                 ],
+                  "beforeShellExecution":  [
+                                               {
+                                                   "matcher":  "GO_PI_SD|FLASH_PI_SD|rpi-imager|PhysicalDriveNumber",
+                                                   "command":  "powershell -NoProfile -ExecutionPolicy Bypass -File .cursor/hooks/gate-flash-shell.ps1",
+                                                   "timeout":  10,
+                                                   "failClosed":  false
+                                               },
+                                               {
+                                                   "matcher":  "skills add|skills  add|install-skills|npx skills",
+                                                   "command":  "powershell -NoProfile -ExecutionPolicy Bypass -File .cursor/hooks/gate-skill-install.ps1",
+                                                   "timeout":  10,
+                                                   "failClosed":  false
+                                               },
+                                               {
+                                                   "command":  "powershell -NoProfile -ExecutionPolicy Bypass -File .cursor/hooks/gate-shell-triage.ps1",
+                                                   "timeout":  10,
+                                                   "failClosed":  false
+                                               }
+                                           ],
+                  "stop":  [
+                               {
+                                   "command":  "powershell -NoProfile -ExecutionPolicy Bypass -File .cursor/hooks/stop-depth-audit.ps1",
+                                   "timeout":  15
+                               },
+                               {
+                                   "command":  "powershell -NoProfile -ExecutionPolicy Bypass -File .cursor/hooks/stop-followup.ps1",
+                                   "timeout":  15
+                               }
+                           ],
+                  "beforeMCPExecution":  [
+                                             {
+                                                 "failClosed":  false,
+                                                 "command":  "powershell -NoProfile -ExecutionPolicy Bypass -File .cursor/hooks/track-librarian-mcp.ps1",
+                                                 "timeout":  5
+                                             }
+                                         ]
+              }
+}

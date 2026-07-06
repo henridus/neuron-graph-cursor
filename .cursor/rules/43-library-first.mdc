@@ -1,0 +1,32 @@
+---
+alwaysApply: true
+description: "Policy library-first - reutiliser l'existant (repo + bibliotheques internes) avant tout nouveau code"
+---
+
+# Library-First
+
+## Regle
+
+Avant de coder du neuf:
+1. chercher dans le repo courant,
+2. chercher dans les bibliotheques/projets internes,
+3. chercher dans le cerveau partage `domains/cursor-skills/INDEX.md`,
+4. verifier les skills projet `.cursor/skills/` et les skills perso `~/.cursor/skills/`,
+5. consulter `domains/bibliotheque/INDEX.md` si la solution reste floue, trop heuristique, ou ressemble a un cas deja traite,
+6. ne coder du neuf que si 1-5 sont insuffisants.
+
+## Exigences
+
+- Eviter les doublons fonctionnels.
+- Garder l'integrite des donnees et l'idempotence.
+- Utiliser les contrats API/types existants quand possible.
+- Documenter le choix de reutilisation (ou la raison de non-reutilisation).
+- Choisir explicitement une issue: `competence_deja_disponible`, `skill_a_importer`, `skill_a_adapter`, `nouvelle_solution_justifiee`.
+- Si `00_Bibliothèque` n'est pas consultee dans un cas ambigu ou deja-vu, pouvoir expliquer pourquoi.
+
+## Anti-patterns
+
+- Copier/coller massif sans adaptation ni verification.
+- Creer un nouveau module equivalent a un module deja valide.
+- Ignorer une competence documentee dans `cursor-skills` avant de construire du neuf.
+- Oublier `domains/bibliotheque/INDEX.md` quand la solution locale devient trop inventee.

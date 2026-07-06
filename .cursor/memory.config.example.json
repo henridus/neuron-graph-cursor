@@ -1,0 +1,14 @@
+﻿{
+    "brainMode": "central",
+    "vaultPath": "{{VAULT_PATH}}",
+    "agentId": "{{AGENT_ID}}",
+    "agentNote": "agents/{{AGENT_ID}}.md",
+    "fallbackPath": "01_Souvenir",
+    "requiredReads": [
+        "00_INDEX.md",
+        "erreurs/INDEX.md",
+        "domains/cursor-skills/INDEX.md",
+        "agents/{{AGENT_ID}}.md"
+    ],
+    "sessionNotePattern": "sessions/{date}-{topic}.md"
+}

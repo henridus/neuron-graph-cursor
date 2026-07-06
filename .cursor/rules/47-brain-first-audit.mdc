@@ -1,0 +1,51 @@
+---
+description: "Brain-first audit - pour plan, audit et exploration multi-fichiers, lire cerveau/specs avant synthese"
+alwaysApply: true
+---
+
+# Brain-First Audit Tunnel
+
+## Regle
+
+Pour tout audit, plan, revue ou exploration multi-fichiers en lecture seule :
+1. classifier le domaine,
+2. lire `AGENTS.md` ou l'index projet,
+3. lire la spec pertinente,
+4. lire le cerveau partage (`00_INDEX.md`, note agent, `_HANDOFF.md` si utile),
+5. lire `domains/cursor-skills/INDEX.md`,
+6. verifier `.cursor/skills/` et `~/.cursor/skills/` si une competence existe deja,
+7. consulter `domains/bibliotheque/INDEX.md` si le besoin ressemble a un precedent interne ou si la solution locale reste faible,
+8. seulement ensuite synthese, plan ou audit.
+
+## Point critique
+
+Les gates d'ecriture seules ne suffisent pas pour contraindre un audit read-only.
+Le but n'est pas de bloquer tout `Read` ou tout `Shell`, mais d'obliger la synthese et l'exploration large a partir du cerveau, des specs et des skills.
+
+## Contrainte pratique
+
+- `Read` et `Shell` de verification legitimes doivent rester possibles.
+- La contrainte forte peut cibler l'exploration large (ex. `Task`) ou la synthese finale, pas toute lecture unitaire.
+- `00_Bibliothèque` doit rester disponible comme source de second niveau, pas devenir une obligation lourde sur chaque petite tache.
+- Si un audit est faux ou superficiel, corriger d'abord le tunnel et les tests plutot que sur-bloquer tous les outils.
+
+## Preuve attendue
+
+Dans la reponse de cadrage ou de plan :
+- domaine,
+- spec lue,
+- MDC appliquee,
+- source cerveau consultee,
+- issue de competence (`competence_deja_disponible` / `skill_a_importer` / `skill_a_adapter` / `nouvelle_solution_justifiee`),
+- mention de `00_Bibliothèque` si elle a aide ou si elle a ete explicitement ecartee dans un cas ambigu.
+
+## Anti-patterns
+
+- auditer un projet en se fiant seulement a l'impression de code,
+- produire un plan sans avoir consulte le cerveau commun,
+- ignorer les skills et erreurs deja documentees,
+- bloquer aveuglement toutes les lectures/verifications shell au lieu de cibler l'exploration large.
+
+## Format de preuve
+
+En audit/plan, la synthese doit idealement suivre le schema : `domaine`, `spec`, `mdc`, `memoire_consultee`, `brain_tunnel_ok`, `competence_trouvee`, `hypothese_initiale`, `signal_contradictoire`, `correction_de_trajectoire`, `impact_sur_le_plan_ou_l_implementation`, `limites_restantes`.

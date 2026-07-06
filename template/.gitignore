@@ -1,0 +1,13 @@
+# Build output / local overrides
+.cursor/agent-gates.json
+.cursor/rules/00-brain-active.mdc
+.cursor/research/
+01_Souvenir/
+reports/
+node_modules/
+*.log
+.DS_Store
+Thumbs.db
+
+# Personal vault (use vault-starter as template only)
+# Do not commit your real Obsidian vault here

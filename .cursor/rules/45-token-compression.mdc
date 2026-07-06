@@ -1,0 +1,38 @@
+---
+alwaysApply: true
+description: "Token compression V03 — syntaxe compacte pour regles alwaysApply et reponses agent"
+---
+
+# Token Compression V03
+
+## Regles alwaysApply
+
+- Max ~80 lignes par `.mdc`
+- Tableaux > prose
+- Abreviations : **A:** obligatoire | **N:** interdit | **+** ajouter | **-** retirer
+
+## Ecriture regles domaine
+
+- 1 sujet par fichier
+- Pas de duplication spec (lien vers `02_Base/` ou `specs/`)
+- Globs precis (pas `**/*.py` global)
+- Details techniques → spec, pas MDC
+
+## Reponses agent
+
+- Citer chemins, pas recopier registres/tables spec entieres
+- Code citation format `startLine:endLine:path`
+- Eviter repetitions user rules deja en contexte
+
+## Checklist Minimize tokens
+
+- [ ] Regle < 120 lignes (80 cible alwaysApply)
+- [ ] Zero emoji sauf logs Padel runtime
+- [ ] Zero Unicode special dans `.ps1` (ASCII only)
+- [ ] Pas de paragraphe > 3 lignes
+
+## Anti-patterns
+
+- Recopier CDC complet dans chat
+- Creer nouvelle regle si spec suffit
+- alwaysApply sur regles domaine (utiliser globs + triage dispatcher)
