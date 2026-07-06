@@ -1,6 +1,8 @@
 # cursor-brain-graph
 
-**Give your Cursor agents a memory that behaves like a brain — one they actually walk through, neuron by neuron, before they act.**
+**Cursor agents + a traversable Obsidian brain, powered by [librarian-mcp](https://github.com/ngmeyer/librarian-mcp) (MIT).**
+
+Your notes become neurons, your `[[wikilinks]]` become synapses, and your agents walk the graph before they act — fail-open, measurable, no self-brick.
 
 ---
 
