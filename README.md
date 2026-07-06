@@ -1,10 +1,32 @@
 # cursor-brain-graph
 
-**Obsidian vault as a traversable neuron graph for Cursor AI agents.**
-
-A template that makes Cursor agents navigate your Obsidian notes like a GPS — entering through domain maps, reading error neurons before acting, and measuring real brain usage with hook instrumentation. Designed to be **fail-open** (no self-blocking) while being **measurable** (every `library_*` call is counted).
+**Give your Cursor agents a memory that behaves like a brain — one they actually walk through, neuron by neuron, before they act.**
 
 ---
+
+## The story
+
+It started with a simple frustration: AI coding agents have amnesia. Every session, they forget what broke last time. They re-invent the same fix, re-make the same mistake, ignore the hard-won lesson buried in your notes. You can hand them documentation — but "having access" to a knowledge base and *actually using it* are two very different things.
+
+So we tried something. We took a small open-source MIT project — [**librarian-mcp**](https://github.com/ngmeyer/librarian-mcp), which turns a folder of Markdown notes into a *graph* you can traverse — and we wired it into Cursor. The notes became **neurons**. The `[[wikilinks]]` between them became **synapses**. And each domain got a **MAP** — an entry point, like a doorway into that region of the brain.
+
+Then came the hard part, and it took the better part of a week of trial and error. Because the first instinct — "force the agent to read the brain" — backfires spectacularly. Hooks that *block* the agent until it proves it read the vault don't create a smart agent; they create a **bricked** one. We watched agents lock themselves out of their own workspace, unable to write a single file, while a human had to paste PowerShell into an external terminal just to unblock them. Enforcement that fails *closed* is enforcement that eventually kills the patient.
+
+The breakthrough was reframing the whole thing. Stop *blocking*. Start *guiding* — and *measuring*.
+
+- On every session start, a hook detects what the task is about and quietly injects the right MAP as the doorway. The agent doesn't have to guess where to enter.
+- A rule (the "traversal contract") teaches the agent the path: enter by the MAP, **read the error neurons before touching code**, follow the synapses to the lesson, and end with a trace of exactly where it walked.
+- And critically — every single `library_*` call the agent makes gets **counted**. Not to punish it. To *prove* it. After a session you can open one JSON file and see: `librarian_calls: 4`. The brain wasn't decoration. It was used.
+
+Every hook fails **open**. If something breaks, the agent keeps working. If the graph engine is down, the agent keeps working. There is no scenario where this system bricks you — that lesson was paid for in full.
+
+We tested it on real agents doing real work. A booking-automation agent (Padel) entered through `MAP-padel`, read `erreurs/padel.md` *before* proposing anything, pulled the exact lesson about a midnight timing bug, and left a clean trace behind — 4 measured traversals, zero blocks. A trading-research agent got the same treatment with its own domain map and its own guardrails. It worked. The brain held.
+
+This repository is that system, extracted and cleaned of anything personal. It's the **mix of Cursor hooks + a traversable Obsidian brain** that we wish had existed when we started.
+
+---
+
+## In one diagram
 
 ## The idea in one diagram
 
@@ -31,7 +53,7 @@ Cursor Agent
        sessions/2026-07-06-padel.md
 ```
 
-The agent ends every non-trivial task with a trace:
+The agent ends every non-trivial task with a trace of the path it walked:
 ```
 CHEMIN: MAP-padel -> padel -> domains/padel/README.md
 ERREURS_LUES: [[padel]]
@@ -41,13 +63,16 @@ SKILL: competence_deja_disponible
 
 ---
 
-## What problem does this solve
+## The two failure modes this avoids
 
-Standard Cursor agents either:
-- Ignore shared memory entirely (answer from training data)
-- Hard-block themselves when enforcement hooks are too strict (self-brick)
+Most attempts at "agent memory" fall into one of two traps:
 
-This template gives you a **middle path**: agents are *guided* to the vault without being *blocked* by it. If a hook fails, it fails open. If librarian-mcp is unavailable, the agent still works. Every real vault traversal is counted so you can verify the brain is actually being used.
+| Trap | What happens |
+|------|--------------|
+| **Too loose** | Agent has a vault but ignores it, answering from training data. Memory is decoration. |
+| **Too strict** | Hooks block the agent until it "proves" it read the brain. One bug and the agent bricks itself — can't write, can't run, needs a human to rescue it. |
+
+`cursor-brain-graph` sits deliberately in the middle: **guided, not blocked; measured, not trusted.** Agents are nudged toward the vault and every traversal is counted, but a broken hook never stops the work.
 
 ---
 
