@@ -32,7 +32,31 @@ This repository is that system, extracted and stripped of anything personal: the
 
 ---
 
-## In one diagram
+## This is an orchestration, not an invention
+
+We did not build a memory engine from scratch. We went looking on GitHub, found that **no single project delivered the whole thing**, and **wired several of them together** into one coherent system. That assembly *is* the contribution here — the glue, the conventions, and the enforcement that make separate pieces behave like one brain.
+
+What we stood on:
+
+| Building block | What it gave us | Origin |
+|----------------|-----------------|--------|
+| **[librarian-mcp](https://github.com/ngmeyer/librarian-mcp)** (MIT) | The graph engine: `library_traverse`, `library_shortest_path`, trigram search, auto-wikilinks | ngmeyer |
+| **The LLM Wiki pattern** | The core idea: an LLM navigating a linked wiki instead of a flat dump | Andrej Karpathy |
+| **Context Capsules + Tiered Retrieval** | Short notes (not walls of text), stop at the right depth, repo beats vault on conflict | obsidian-agent-memory ecosystem |
+| **Skill acquisition** (`find-skills`) | Agents pulling in curated skills on demand instead of hardcoding everything | Vercel Labs pattern |
+| **Cursor hooks** | The deterministic enforcement surface: sessionStart, preToolUse, stop | Cursor official docs |
+| **Obsidian** | The vault: plain Markdown + `[[wikilinks]]` as the neuron substrate | obsidian.md |
+
+**What we added on top** — the part that did not exist before:
+
+- **Domain MAPs as forced entry points** so the agent always knows which doorway into the brain to use.
+- **A traversal contract** (rule 49 + the `brain-traverse` skill) that makes "read the errors before you act" a rule, not a hope.
+- **Fail-open enforcement** — hooks that guide without ever bricking the agent (a lesson learned the hard way).
+- **Measurable proof** — every `library_*` call counted in `agent-gates.json`, so brain usage is a number, not a claim.
+
+In short: the neurons come from Obsidian, the nervous system from librarian-mcp, the reflexes from Cursor hooks — and **this repo is the surgeon that connected them** so an AI agent can finally think with a memory that persists.
+
+---
 
 ## The idea in one diagram
 
@@ -274,7 +298,22 @@ Issues and PRs welcome. Keep changes fail-open and test with `RUN_HOOK_TESTS.ps1
 
 ---
 
+## Credits — the projects this orchestrates
+
+This project is an assembly. Full credit to the work it builds on:
+
+- **[librarian-mcp](https://github.com/ngmeyer/librarian-mcp)** (ngmeyer, MIT) — the graph traversal engine that makes any Markdown folder walkable.
+- **Andrej Karpathy** — the LLM Wiki pattern that inspired the whole "navigate, don't dump" approach.
+- **The obsidian-agent-memory ecosystem** — Context Capsules and Tiered Retrieval, which shaped how notes stay short and traversal stops at the right depth.
+- **Vercel Labs `find-skills`** — the on-demand skill acquisition pattern.
+- **[Obsidian](https://obsidian.md)** and the **[Model Context Protocol](https://modelcontextprotocol.io)** — the substrate and the wiring standard.
+- **Cursor** — the hooks API that made deterministic enforcement possible.
+
+The original contribution of this repo is the **orchestration layer**: domain MAPs, the traversal contract, fail-open enforcement, and measurable brain-usage proof.
+
+---
+
 ## License
 
 MIT — see `template/LICENSE`.  
-[librarian-mcp](https://github.com/ngmeyer/librarian-mcp) is MIT licensed separately.
+[librarian-mcp](https://github.com/ngmeyer/librarian-mcp) and the other referenced projects are licensed separately by their respective authors.
