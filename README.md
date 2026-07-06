@@ -22,9 +22,13 @@ The breakthrough was reframing the whole thing. Stop *blocking*. Start *guiding*
 
 Every hook fails **open**. If something breaks, the agent keeps working. If the graph engine is down, the agent keeps working. There is no scenario where this system bricks you — that lesson was paid for in full.
 
-We tested it on real agents doing real work. A booking-automation agent (Padel) entered through `MAP-padel`, read `erreurs/padel.md` *before* proposing anything, pulled the exact lesson about a midnight timing bug, and left a clean trace behind — 4 measured traversals, zero blocks. A trading-research agent got the same treatment with its own domain map and its own guardrails. It worked. The brain held.
+Then we validated it on live sessions, not in theory.
 
-This repository is that system, extracted and cleaned of anything personal. It's the **mix of Cursor hooks + a traversable Obsidian brain** that we wish had existed when we started.
+A booking-automation agent was handed a vague task about a recurring failure. Instead of guessing, it entered through `MAP-padel`, opened `erreurs/padel.md` **before** writing a single line, and surfaced the specific lesson it needed — a timing bug that only triggered around midnight. It finished with a trace showing exactly which neurons it had walked. The instrumentation confirmed it wasn't bluffing: **4 real `library_*` calls counted, zero hooks blocked**. A second agent, working on a completely different domain, got the same behaviour through its own map and its own guardrails.
+
+That's the whole point. You no longer have to *trust* that the agent used your knowledge base — you can *read the count* and see the path it took.
+
+This repository is that system, extracted and stripped of anything personal: the **Cursor hooks + traversable Obsidian brain** we wish had existed on day one.
 
 ---
 
