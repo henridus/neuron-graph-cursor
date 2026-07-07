@@ -1,4 +1,4 @@
-﻿# Tests paliers hooks command fleet V11 — H1-H30
+# Tests paliers hooks command fleet V11 — H1-H30
 $ErrorActionPreference = 'Stop'
 $AgentPathEarly = (Resolve-Path (Join-Path $PSScriptRoot '..\..')).Path
 function Restore-AgentGates {

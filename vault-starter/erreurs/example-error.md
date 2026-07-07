@@ -1,4 +1,4 @@
-﻿---
+---
 type: erreur
 domaine: example
 status: actif

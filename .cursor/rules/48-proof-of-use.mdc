@@ -1,0 +1,22 @@
+---
+description: "Proof-of-use - structure verifiable en audit/plan explicite seulement"
+alwaysApply: false
+globs:
+  - "specs/**"
+  - "reports/**"
+  - "**/audit/**"
+---
+
+# Proof Of Brain / Hooks Use
+
+## Quand activer
+
+Seulement si l utilisateur demande un **audit**, un **plan multi-fichiers**, ou si l agent affirme avoir utilise le cerveau/hooks/remise en question.
+
+## Format (audit/plan)
+
+`domaine`, `spec`, `mdc`, `memoire_consultee`, `brain_tunnel_ok`, `competence_trouvee`, `hypothese_initiale`, `signal_contradictoire`, `correction_de_trajectoire`, `impact_sur_le_plan_ou_l_implementation`, `bibliotheque_consultee_ou_ecartee`, `limites_restantes`.
+
+## Hors audit
+
+Taches d execution : agir avec le contexte `00-brain-active.mdc` sans ceremonie de preuve.

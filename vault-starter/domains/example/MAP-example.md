@@ -1,4 +1,4 @@
-﻿---
+---
 type: map
 domaine: example
 status: actif

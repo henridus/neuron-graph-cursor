@@ -1,4 +1,4 @@
-﻿# beforeMCPExecution V18 — marque appels librarian dans agent-gates
+# beforeMCPExecution V18 — marque appels librarian dans agent-gates
 $ErrorActionPreference = 'SilentlyContinue'
 $hookPipeline = ''
 if ($input) {

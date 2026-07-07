@@ -1,4 +1,4 @@
-# Neuron Graph for Cursor
+﻿# Neuron Graph for Cursor
 
 **A traversable Obsidian brain for Cursor agents, powered by [librarian-mcp](https://github.com/ngmeyer/librarian-mcp) (MIT).**
 
@@ -143,41 +143,11 @@ Add to `~/.cursor/mcp.json` (global, shared across all agents):
 }
 ```
 
-### Step 1b — Optional: compress librarian MCP tokens with Token Smithers
+### Step 1b — Optional: digest trim for token savings
 
-[librarian-mcp](https://github.com/ngmeyer/librarian-mcp) exposes ~20 tools; their schemas and graph results can consume a lot of context. **[Token Smithers](https://github.com/shacharbard/token-smithers)** is a stdio proxy that sits between Cursor and librarian-mcp and compresses schemas + results transparently.
+The main reliable token saving is trimming the digest injected at session start. In `brain-load.ps1`, set a char cap (e.g. 4500 chars) and remove sections already covered by alwaysApply rules (SKILLS, BIBLIO). Measured gain: ~900-1100 tokens/session, deterministic.
 
-**Install** (Python 3.11+):
-
-```powershell
-pip install "token-smithers[learning] @ git+https://github.com/shacharbard/token-smithers.git@stable"
-```
-
-**Configure** — copy `vault-starter/librarian-smithers.yaml.example` to `~/.cursor/librarian-smithers.yaml`, edit paths, then update `~/.cursor/mcp.json`:
-
-```json
-{
-  "mcpServers": {
-    "librarian": {
-      "command": "token-smithers",
-      "args": ["--config", "C:\\Users\\you\\.cursor\\librarian-smithers.yaml"]
-    }
-  }
-}
-```
-
-**Important**: keep the server name `"librarian"` — hooks count `CallMcpTool` on that name; renaming breaks `librarian_calls` instrumentation.
-
-**Verify** after reload:
-
-```powershell
-powershell -NoProfile -File tests\hooks\SIMULATE_LIBRARIAN_TERRAIN.ps1
-powershell -NoProfile -File tests\hooks\RUN_HOOK_TESTS.ps1
-```
-
-**Stats**: `token-smithers stats` reads compression metrics from `~/.token-smithers/metrics.json`.
-
-Token Smithers only compresses MCP traffic. Native Cursor tools (`Read`, `Write`, `Shell`, `Grep`) are unaffected.
+| `vault-starter/librarian-smithers.yaml.example` | Token Smithers reference config (proxy mode not recommended on Windows Cursor) |
 
 ### Step 2 — Copy template into your Cursor project
 
@@ -242,9 +212,32 @@ Both should exit with `PASS`.
 
 ---
 
+## Working Memory V02 — intra-session scratchpad
+
+Beyond the long-term Obsidian brain, agents need a **within-session scratchpad** that survives context compaction and reminds them of decisions made earlier in the same conversation.
+
+Two hooks handle this automatically:
+
+- `afterAgentResponse` → `working-memory-sync.ps1` captures the assistant's last response and appends it to the journal
+- `preCompact` → same script, fires before Cursor compacts the context window
+
+The script writes to `.cursor/research/working-memory.md` (created on first run) and regenerates `.cursor/rules/00-working-memory.mdc` so the active state is re-injected at each turn.
+
+Key properties:
+- **Named mutex** (`Global\wm-sync-{agentId}`) prevents race conditions on concurrent hook calls
+- **UTF-8 repair** (`Repair-Utf8Mojibake`) fixes accented characters broken by PowerShell's console codepage re-encoding on Windows
+- **Journal deduplication** — identical entries are never written twice
+- **Nudge mechanism** — if the structured sections (`Objectif`, `Decisions`, `Faits etablis`, etc.) have not been updated by the agent for N turns, a `RAPPEL:` banner is injected in the rule to prompt the agent to update them
+
+Rule `50-working-memory.mdc` is the behavioral contract for the agent: it must read and update `.cursor/research/working-memory.md` at each significant step.
+
+---
+
 ## How agents are expected to traverse the brain
 
 Rule 49 (`49-brain-traversal.mdc`) imposes this pattern for non-trivial tasks:
+| `.cursor/rules/50-working-memory.mdc` | WM V02 behavioral contract (always-apply rule) |
+| `.cursor/rules/50-working-memory.mdc` | WM V02 behavioral contract (always-apply rule) |
 
 1. **Enter by the domain MAP**: `library_traverse(start="MAP-my-domain", depth=1)`
 2. **Read errors BEFORE synthesis**: `library_read(path="erreurs/my-domain.md")`
@@ -283,19 +276,21 @@ After each session, `.cursor/agent-gates.json` contains:
 | Path | Purpose |
 |------|---------|
 | `.cursor/hooks/brain-load.ps1` | Session start: detect domain, inject MAP entry + digest |
+| `.cursor/hooks/working-memory-sync.ps1` | WM V02: journal append, UTF-8 repair, nudge, regenerate 00-working-memory.mdc |
 | `.cursor/hooks/track-librarian-pretool.ps1` | Count every `CallMcpTool` librarian call |
 | `.cursor/hooks/gate-write-unified.ps1` | Write/StrReplace gate (fail-open, brain-guided) |
 | `.cursor/hooks/gate-shell-triage.ps1` | Shell gate (fail-open, recovery entrypoints allowed) |
 | `.cursor/hooks/stop-depth-audit.ps1` | End-of-session: nudge if no traversal trace found |
 | `.cursor/hooks/_hook-io.ps1` | Shared helpers: `Read-HookInput`, `Write-Gates`, `Record-LibrarianCall`, etc. |
-| `.cursor/hooks.json` | Hook registration (sessionStart, preToolUse, beforeMCPExecution, stop) |
+| `.cursor/hooks.json` | Hook registration (sessionStart, preToolUse, afterAgentResponse, preCompact, beforeMCPExecution, stop) |
 | `.cursor/memory.config.json` | Per-agent config: vaultPath, agentId |
 | `.cursor/rules/49-brain-traversal.mdc` | Traversal contract (always-apply rule) |
+| `.cursor/rules/50-working-memory.mdc` | WM V02 behavioral contract (always-apply rule) |
 | `.agents/skills/brain-traverse/SKILL.md` | Agent skill: how to traverse step by step |
 | `tests/hooks/RUN_HOOK_TESTS.ps1` | 43-palier test suite |
 | `tests/hooks/SIMULATE_LIBRARIAN_TERRAIN.ps1` | Simulate 2 librarian calls, assert counter > 0 |
 | `vault-starter/` | Minimal Obsidian vault structure (no personal data) |
-| `vault-starter/librarian-smithers.yaml.example` | Optional Token Smithers proxy config for librarian-mcp |
+| `vault-starter/librarian-smithers.yaml.example` | Token Smithers reference config (proxy mode not recommended on Windows Cursor) |
 
 ---
 

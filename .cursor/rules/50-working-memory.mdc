@@ -1,0 +1,49 @@
+---
+alwaysApply: true
+description: "Memoire de travail intra-session - completer et relire avant d agir"
+globs:
+  - "**/*"
+---
+
+# Working Memory V02 (intra-session)
+
+## Probleme resolu
+
+Conversation longue = perte de contexte. Le vault Obsidian couvre les sessions, pas le fil courant.
+
+## Regle absolue
+
+**A:** maintenir `.cursor/research/working-memory.md` a jour pendant la session.
+**A:** relire le bloc **Memoire active** (regle `00-working-memory.mdc`) avant toute nouvelle action significative.
+**A:** rappeler les contraintes actives si l utilisateur les a deja donnees (ne pas redemander).
+**N:** reposer a l utilisateur une info deja dans working-memory sauf si contradiction explicite.
+
+## Quand ecrire (obligatoire)
+
+Apres chaque avancee significative (config, decision, mesure, blocage resolu ou non) :
+
+| Section | Contenu |
+|---------|---------|
+| Objectif | But courant en 1-2 lignes |
+| Decisions | Choix pris + pourquoi |
+| Faits etablis | Etat verifie (versions, scores, chemins, exclusions) |
+| Blocage courant | Ce qui bloque maintenant (ou `none`) |
+| Prochaine etape | Action concrete suivante |
+
+Fichier cible : `.cursor/research/working-memory.md` (agent peut Write/StrReplace).
+
+## Synchronisation hook
+
+Le hook `working-memory-sync.ps1` (`afterAgentResponse` + `preCompact`) capture le resume de tour et regenere `00-working-memory.mdc` pour reinjection a chaque requete.
+
+Si `00-working-memory.mdc` affiche **RAPPEL: Faits etablis non mis a jour depuis N tours**, mettre a jour **immediatement** les sections Objectif/Decisions/Faits/Blocage/Prochaine etape dans `working-memory.md` avant toute autre action.
+
+## Promotion vault (hybride)
+
+Checkpoints : le hook copie un instantane vers `sessions/YYYY-MM-DD-<topic>-wm.md` dans le vault. Le sessionStart promeut le scratchpad restant avant reset.
+
+## Anti-patterns
+
+- Compter sur le chat seul pour retenir le contexte deja etabli
+- Nouvelle tache sans lire working-memory + MAP du domaine
+- Ecraser working-memory sans garder les faits encore valides

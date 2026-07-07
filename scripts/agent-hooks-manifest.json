@@ -1,0 +1,20 @@
+﻿{
+  "018_Trader": {
+    "preToolUse": [
+      {
+        "command": "powershell -NoProfile -ExecutionPolicy Bypass -File .cursor/hooks/gate-trading-research.ps1",
+        "matcher": "Write|StrReplace|EditNotebook",
+        "timeout": 10,
+        "failClosed": false
+      }
+    ],
+    "beforeShellExecution": [
+      {
+        "command": "powershell -NoProfile -ExecutionPolicy Bypass -File .cursor/hooks/track-shell-research.ps1",
+        "matcher": "run-phase2-github|api\\.github\\.com|github-search|WebSearch|flashalpha|spotgamma|crosstrade",
+        "timeout": 5,
+        "failClosed": false
+      }
+    ]
+  }
+}

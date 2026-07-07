@@ -68,6 +68,18 @@
                                    "timeout":  15
                                }
                            ],
+                  "preCompact":  [
+                                     {
+                                         "command":  "powershell -NoProfile -ExecutionPolicy Bypass -File .cursor/hooks/working-memory-sync.ps1",
+                                         "timeout":  10
+                                     }
+                                 ],
+                  "afterAgentResponse":  [
+                                               {
+                                                   "command":  "powershell -NoProfile -ExecutionPolicy Bypass -File .cursor/hooks/working-memory-sync.ps1",
+                                                   "timeout":  10
+                                               }
+                                           ],
                   "beforeMCPExecution":  [
                                              {
                                                  "failClosed":  false,
