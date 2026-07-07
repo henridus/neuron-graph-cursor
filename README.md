@@ -112,6 +112,7 @@ Most attempts at "agent memory" fall into one of two traps:
 |-------|------|---------|
 | Cursor hooks | PowerShell scripts in `.cursor/hooks/` | MIT (this repo) |
 | Graph engine | [librarian-mcp](https://github.com/ngmeyer/librarian-mcp) | MIT |
+| Token compression (optional) | [Token Smithers](https://github.com/shacharbard/token-smithers) | MIT |
 | Knowledge base | Obsidian vault (your own) | yours |
 | Agent rules | `.cursor/rules/*.mdc` | MIT (this repo) |
 
@@ -141,6 +142,42 @@ Add to `~/.cursor/mcp.json` (global, shared across all agents):
   }
 }
 ```
+
+### Step 1b — Optional: compress librarian MCP tokens with Token Smithers
+
+[librarian-mcp](https://github.com/ngmeyer/librarian-mcp) exposes ~20 tools; their schemas and graph results can consume a lot of context. **[Token Smithers](https://github.com/shacharbard/token-smithers)** is a stdio proxy that sits between Cursor and librarian-mcp and compresses schemas + results transparently.
+
+**Install** (Python 3.11+):
+
+```powershell
+pip install "token-smithers[learning] @ git+https://github.com/shacharbard/token-smithers.git@stable"
+```
+
+**Configure** — copy `vault-starter/librarian-smithers.yaml.example` to `~/.cursor/librarian-smithers.yaml`, edit paths, then update `~/.cursor/mcp.json`:
+
+```json
+{
+  "mcpServers": {
+    "librarian": {
+      "command": "token-smithers",
+      "args": ["--config", "C:\\Users\\you\\.cursor\\librarian-smithers.yaml"]
+    }
+  }
+}
+```
+
+**Important**: keep the server name `"librarian"` — hooks count `CallMcpTool` on that name; renaming breaks `librarian_calls` instrumentation.
+
+**Verify** after reload:
+
+```powershell
+powershell -NoProfile -File tests\hooks\SIMULATE_LIBRARIAN_TERRAIN.ps1
+powershell -NoProfile -File tests\hooks\RUN_HOOK_TESTS.ps1
+```
+
+**Stats**: `token-smithers stats` reads compression metrics from `~/.token-smithers/metrics.json`.
+
+Token Smithers only compresses MCP traffic. Native Cursor tools (`Read`, `Write`, `Shell`, `Grep`) are unaffected.
 
 ### Step 2 — Copy template into your Cursor project
 
@@ -258,6 +295,7 @@ After each session, `.cursor/agent-gates.json` contains:
 | `tests/hooks/RUN_HOOK_TESTS.ps1` | 43-palier test suite |
 | `tests/hooks/SIMULATE_LIBRARIAN_TERRAIN.ps1` | Simulate 2 librarian calls, assert counter > 0 |
 | `vault-starter/` | Minimal Obsidian vault structure (no personal data) |
+| `vault-starter/librarian-smithers.yaml.example` | Optional Token Smithers proxy config for librarian-mcp |
 
 ---
 
@@ -306,6 +344,7 @@ This project is an assembly. Full credit to the work it builds on:
 - **Andrej Karpathy** — the LLM Wiki pattern that inspired the whole "navigate, don't dump" approach.
 - **The obsidian-agent-memory ecosystem** — Context Capsules and Tiered Retrieval, which shaped how notes stay short and traversal stops at the right depth.
 - **Vercel Labs `find-skills`** — the on-demand skill acquisition pattern.
+- **[Token Smithers](https://github.com/shacharbard/token-smithers)** (shacharbard) — optional MCP compression proxy for librarian token savings.
 - **[Obsidian](https://obsidian.md)** and the **[Model Context Protocol](https://modelcontextprotocol.io)** — the substrate and the wiring standard.
 - **Cursor** — the hooks API that made deterministic enforcement possible.
 

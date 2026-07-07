@@ -52,20 +52,18 @@ Regles: repo > vault si contradiction ; noms de notes uniques ; ne pas ecrire _b
 Sortie tache non triviale = TRACE: CHEMIN / ERREURS_LUES / CONTRADICTION_REPO_VAULT / SKILL.
 "@
 $sections = @()
-$sections += "## INDEX`n" + (Read-BrainSection $vaultPath '00_INDEX.md')
-$sections += "## PROFIL`n" + (Read-BrainSection $vaultPath 'users/henri-dusonchet.md' 1200)
+$sections += "## INDEX`n" + (Read-BrainSection $vaultPath '00_INDEX.md' 1500)
+$sections += "## PROFIL`n" + (Read-BrainSection $vaultPath 'users/henri-dusonchet.md' 800)
 $sections += "## ERREURS`n" + (Read-BrainSection $vaultPath 'erreurs/INDEX.md' 1500)
-$sections += "## SKILLS`n" + (Read-BrainSection $vaultPath 'domains/cursor-skills/INDEX.md' 1500)
-$sections += "## BIBLIO`n" + (Read-BrainSection $vaultPath 'domains/bibliotheque/INDEX.md' 1200)
-$sections += "## AGENT`n" + (Read-BrainSection $vaultPath $agentNote 1500)
+$sections += "## AGENT`n" + (Read-BrainSection $vaultPath $agentNote 1000)
 $handoff = Join-Path $vaultPath 'sessions\_HANDOFF.md'
 if (Test-Path $handoff) {
     $hf = Get-Item $handoff
-    if ($hf.Length -lt 50000) { $sections += "## HANDOFF`n" + (Read-BrainSection $vaultPath 'sessions/_HANDOFF.md' 2000) }
+    if ($hf.Length -lt 50000) { $sections += "## HANDOFF`n" + (Read-BrainSection $vaultPath 'sessions/_HANDOFF.md' 1200) }
     else { $sections += '## HANDOFF`n(fichier volumineux - lire sessions/_HANDOFF.md)' }
 }
 $digest = ($sections | Where-Object { $_ -and $_.Trim().Length -gt 10 }) -join "`n`n---`n`n"
-$digest = Truncate-BrainText $digest 8000
+$digest = Truncate-BrainText $digest 4500
 $rulePath = Join-Path $projectRoot '.cursor\rules\00-brain-active.mdc'
 $ruleLines = @(
     '---','alwaysApply: true','description: "Brain V17 - traversee graphe + digest injecte sessionStart"','---','',

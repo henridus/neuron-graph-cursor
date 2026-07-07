@@ -1,0 +1,20 @@
+# Token Smithers proxy config for librarian-mcp (optional)
+# https://github.com/shacharbard/token-smithers
+#
+# Install:
+#   pip install "token-smithers[learning] @ git+https://github.com/shacharbard/token-smithers.git@stable"
+#
+# Then point ~/.cursor/mcp.json librarian entry to token-smithers:
+#   "command": "token-smithers"
+#   "args": ["--config", "C:\\Users\\you\\.cursor\\librarian-smithers.yaml"]
+#
+# Keep the server name "librarian" so hooks (track-librarian-pretool) keep counting calls.
+
+backend:
+  command: "C:\\Users\\you\\AppData\\Local\\librarian-mcp\\librarian-mcp.exe"
+  args:
+    - "C:\\Users\\you\\path\\to\\your\\vault"
+compression:
+  schemas: true
+  results: true
+  learning: true
