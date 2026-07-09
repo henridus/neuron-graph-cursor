@@ -56,6 +56,7 @@ $sections += "## INDEX`n" + (Read-BrainSection $vaultPath '00_INDEX.md' 1500)
 $sections += "## PROFIL`n" + (Read-BrainSection $vaultPath 'users/henri-dusonchet.md' 800)
 $sections += "## ERREURS`n" + (Read-BrainSection $vaultPath 'erreurs/INDEX.md' 1500)
 $sections += "## AGENT`n" + (Read-BrainSection $vaultPath $agentNote 1000)
+$sections += "## cursor-skills`n" + (Read-BrainSection $vaultPath 'domains/cursor-skills/INDEX.md' 800)
 $handoff = Join-Path $vaultPath 'sessions\_HANDOFF.md'
 if (Test-Path $handoff) {
     $hf = Get-Item $handoff

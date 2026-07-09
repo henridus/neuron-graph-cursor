@@ -1,4 +1,4 @@
-# sessionStart V16 â€” brain digest + brain_ok
+# sessionStart V17 - brain digest + brain_ok
 $ErrorActionPreference = 'SilentlyContinue'
 if ($env:ENFORCEMENT_MAINTENANCE -eq '1') { exit 0 }
 try { . (Join-Path $PSScriptRoot '_hook-io.ps1') } catch { }
@@ -11,6 +11,17 @@ $brainOut = (& powershell -NoProfile -ExecutionPolicy Bypass -File $brainScript 
 try {
     . (Join-Path $PSScriptRoot '_hook-io.ps1')
     Write-Gates $root @{ librarian_used = $false; librarian_calls = 0; brain_ok = $true; session_started = (Get-Date -Format o); brain_loaded_at = (Get-Date -Format o); brain_digest_at = (Get-Date -Format o) }
+} catch { }
+try {
+    $wmScript = Join-Path $PSScriptRoot 'working-memory-sync.ps1'
+    if (Test-Path $wmScript) {
+        $wmR = $root
+        $wmS = $wmScript
+        $wmJob = Start-Job { param($s,$r) & powershell -NoProfile -ExecutionPolicy Bypass -File $s -SessionReset -ProjectRoot $r 2>&1 } -ArgumentList $wmS,$wmR
+        $wmJob | Wait-Job -Timeout 12 | Out-Null
+        Stop-Job $wmJob -ErrorAction SilentlyContinue
+        Remove-Job $wmJob -Force -ErrorAction SilentlyContinue
+    }
 } catch { }
 if ($brainOut) {
     $lastLine = ($brainOut -split "`r?`n" | Where-Object { $_.Trim().Length -gt 0 } | Select-Object -Last 1)
