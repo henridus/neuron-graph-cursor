@@ -1,4 +1,4 @@
-# beforeShellExecution V18 — tunnel requis pour shell mutate (E1/E4), fail-open sinon
+# beforeShellExecution V20 — tunnel requis pour shell mutate (E1/E4), fail-open sinon
 $ErrorActionPreference = 'SilentlyContinue'
 if ($env:ENFORCEMENT_MAINTENANCE -eq '1') { '{"permission":"allow"}' | Write-Output; exit 0 }
 try {
@@ -16,6 +16,7 @@ try {
     $manip = Test-ShellManipulatesEnforcement $cmd
     if (-not (Test-ShellMutatesFile $cmd) -and -not $manip) { Out-Allow }
     if (-not (Test-BrainActive $root)) { Out-Deny 'Brain non charge' 'sessionStart requis.' }
+    # V20: restore tunnel Read session (juste milieu V17)
     if (-not (Test-BrainTunnelOk $root)) { Out-Deny 'Tunnel cerveau incomplet' 'Lire requiredReads vault avant Shell.' }
     if (-not (Test-BrainOkLoaded $root)) { Out-Deny 'Brain non charge' 'Attendre injection cerveau.' }
     Out-Allow

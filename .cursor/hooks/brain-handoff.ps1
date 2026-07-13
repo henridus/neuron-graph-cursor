@@ -26,7 +26,17 @@ $multiFile = $false
 if ($json -match 'write|strreplace|editnotebook') { $multiFile = $true }
 if ($payload.tool_calls -and $payload.tool_calls.Count -gt 1) { $multiFile = $true }
 if ($payload.edits -and $payload.edits.Count -gt 1) { $multiFile = $true }
-if (-not $multiFile) { exit 0 }
+# V05 (spec 056): documenter aussi les tours analytiques (traversee cerveau sans multi-Write)
+$librarianTurn = $false
+try {
+    $gatesPath = Join-Path $projectRoot '.cursor\agent-gates.json'
+    if (Test-Path $gatesPath) {
+        $gg = Get-Content $gatesPath -Raw | ConvertFrom-Json
+        if ($gg.librarian_used -eq $true) { $librarianTurn = $true }
+        elseif ($gg.librarian_calls -and [int]$gg.librarian_calls -gt 0) { $librarianTurn = $true }
+    }
+} catch { }
+if (-not $multiFile -and -not $librarianTurn) { exit 0 }
 
 $domain = 'general'
 if ($json -match 'homelab|raspberry|flash|pihole|usbip|tailscale') { $domain = 'homelab' }

@@ -572,7 +572,13 @@ function Record-LibrarianCall([string]$Root) {
     $g = Read-Gates $Root
     $count = 0
     if ($g -and $null -ne $g.librarian_calls) { try { $count = [int]$g.librarian_calls } catch { $count = 0 } }
-    Write-Gates $Root @{ librarian_used = $true; librarian_calls = ($count + 1); librarian_last_at = (Get-Date -Format o) }
+    # V20: librarian_used_this_turn = preuve par-tour (L5) ; librarian_used = preuve session (connaissances/)
+    Write-Gates $Root @{
+        librarian_used = $true
+        librarian_used_this_turn = $true
+        librarian_calls = ($count + 1)
+        librarian_last_at = (Get-Date -Format o)
+    }
 }
 function Test-LibrarianUsed([string]$Root) {
     $g = Read-Gates $Root
@@ -580,4 +586,53 @@ function Test-LibrarianUsed([string]$Root) {
     if ($g.librarian_used -eq $true) { return $true }
     if ($null -ne $g.librarian_calls) { try { if ([int]$g.librarian_calls -gt 0) { return $true } } catch { } }
     return $false
+}
+function Test-LibrarianUsedThisTurn([string]$Root) {
+    $g = Read-Gates $Root
+    if (-not $g) { return $false }
+    return ($g.librarian_used_this_turn -eq $true)
+}
+function Clear-LibrarianUsedThisTurn([string]$Root) {
+    Write-Gates $Root @{ librarian_used_this_turn = $false }
+}
+function Test-BrainDigestStale([string]$Root, [double]$MaxHours = 12) {
+    $g = Read-Gates $Root
+    if (-not $g) { return $true }
+    $candidates = @()
+    foreach ($k in @('brain_digest_at', 'brain_loaded_at', 'session_started')) {
+        $v = [string]$g.$k
+        if (-not [string]::IsNullOrWhiteSpace($v)) { $candidates += $v }
+    }
+    if ($candidates.Count -eq 0) { return $true }
+    $newest = $null
+    foreach ($c in $candidates) {
+        try {
+            $dt = [datetime]::Parse($c)
+            if (-not $newest -or $dt -gt $newest) { $newest = $dt }
+        } catch { }
+    }
+    if (-not $newest) { return $true }
+    $ageH = ((Get-Date) - $newest).TotalHours
+    if ($ageH -ge $MaxHours) { return $true }
+    # Aussi stale si jour calendaire different (sessions multi-jours)
+    if ($newest.Date -lt (Get-Date).Date) { return $true }
+    return $false
+}
+function Invoke-BrainDigestRefresh([string]$Root) {
+    $brainScript = Join-Path $Root '.cursor\hooks\brain-load.ps1'
+    if (-not (Test-Path $brainScript)) { $brainScript = Join-Path $PSScriptRoot 'brain-load.ps1' }
+    if (-not (Test-Path $brainScript)) { return $false }
+    try {
+        $null = & powershell -NoProfile -ExecutionPolicy Bypass -File $brainScript -Payload '{}' 2>&1
+        $now = (Get-Date -Format o)
+        # Force relecture tunnel: nouvelles timestamps session + flags read a false
+        Reset-SessionReads $Root
+        Write-Gates $Root @{
+            brain_ok = $true
+            brain_digest_at = $now
+            brain_loaded_at = $now
+            librarian_used_this_turn = $false
+        }
+        return $true
+    } catch { return $false }
 }

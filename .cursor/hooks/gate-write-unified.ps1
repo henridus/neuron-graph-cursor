@@ -1,4 +1,4 @@
-# preToolUse V18 — hybrid brain lever (governance + tunnel + reflection + librarian)
+# preToolUse V20 — hybrid brain lever (governance + tunnel + reflection + librarian)
 $ErrorActionPreference = 'SilentlyContinue'
 if ($env:ENFORCEMENT_MAINTENANCE -eq '1') { '{"permission":"allow"}' | Write-Output; exit 0 }
 try {
@@ -30,6 +30,7 @@ try {
         if (-not (Test-BrainOkLoaded $root)) {
             Out-Deny 'Tunnel cerveau incomplet' 'sessionStart / gates requis.'
         }
+        # V20: restore tunnel (juste milieu V17) — protege = tunnel + reflection
         if ($isProt -and -not (Test-BrainTunnelOk $root)) {
             Out-Deny 'Tunnel cerveau incomplet' 'Lire requiredReads vault avant Write spec/docs.'
         }
@@ -56,6 +57,7 @@ try {
     }
 
     if (Test-RepairSurfacePath $norm -and $env:ENFORCEMENT_MAINTENANCE -eq '1') { Out-Allow }
+    # V20: restore tunnel Read session (juste milieu V17) — Write ordinaire = tunnel + brain_ok
     if (-not (Test-BrainTunnelOk $root)) { Out-Deny 'Tunnel cerveau incomplet' 'Lire requiredReads vault avant Write.' }
     if (-not (Test-BrainOkLoaded $root)) { Out-Deny 'Brain non charge' 'Attendre injection cerveau (sessionStart).' }
     if (Test-TypoCarveOut $tool $toolInput $norm) { Out-Allow }

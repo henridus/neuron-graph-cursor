@@ -10,7 +10,7 @@ $payload = if ($hookIn -and $hookIn.Trim().Length -gt 0) { $hookIn } else { '{}'
 $brainOut = (& powershell -NoProfile -ExecutionPolicy Bypass -File $brainScript -Payload $payload 2>&1 | Out-String).Trim()
 try {
     . (Join-Path $PSScriptRoot '_hook-io.ps1')
-    Write-Gates $root @{ librarian_used = $false; librarian_calls = 0; brain_ok = $true; session_started = (Get-Date -Format o); brain_loaded_at = (Get-Date -Format o); brain_digest_at = (Get-Date -Format o) }
+    Write-Gates $root @{ librarian_used = $false; librarian_used_this_turn = $false; librarian_calls = 0; brain_ok = $true; session_started = (Get-Date -Format o); brain_loaded_at = (Get-Date -Format o); brain_digest_at = (Get-Date -Format o) }
 } catch { }
 try {
     $wmScript = Join-Path $PSScriptRoot 'working-memory-sync.ps1'

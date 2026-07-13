@@ -23,13 +23,21 @@ Config : `.cursor/memory.config.json`
 | `agentNote` | Note Obsidian `agents/{agentId}.md` |
 | `requiredReads` | Fichiers charges dans `brain-load.ps1` (index, erreurs, biblio, skills, note agent) |
 
-## Chargement V16
+## Chargement V20
 
 1. Hook `sessionStart` appelle `brain-load.ps1` — **digest reel** vault dans `additional_context`
 2. Ecrit `.cursor/rules/00-brain-active.mdc` avec extrait digest
 3. `brain_ok=true` dans `agent-gates.json` apres injection
-4. **N:** tunnel Read stateful (`brain_tunnel_ok`) — abandonne (non fiable Cursor)
-5. Audit methodo au `stop` via `stop-depth-audit` (followup, non bloquant)
+4. **A:** tunnel Read session (`brain_tunnel_ok` via `requiredReads` fraiches) — **restaure** dans gates Write/Shell/Delete (juste milieu V17, spec 057)
+5. Digest stale sur session longue : hook `stop` regenere le digest + followup
+6. Audit methodo au `stop` via `stop-depth-audit` (followup L5 par-tour, non bloquant)
+
+## Digest != cerveau consulte
+
+- **A:** question analytique (audit, "outil X vaut le coup", architecture, comparaison) -> `library_traverse` depuis `MAP-<domaine>` AVANT de repondre ou chercher dehors.
+- Le digest sessionStart n'est PAS une traversee sur la question courante.
+- `stop-depth-audit` emet un followup si pas de librarian **ce tour** sur reponse analytique. Voir `erreurs/agent-repond-sans-cerveau-chat`.
+
 
 ## Handoff V04
 

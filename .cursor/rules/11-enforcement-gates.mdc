@@ -1,12 +1,15 @@
 ---
 alwaysApply: true
-description: "Gates V16 anti-brick"
+description: "Gates V20 anti-brick"
 ---
-# Enforcement Gates V16
+# Enforcement Gates V20
 
 1. sessionStart : brain-load injecte **digest reel** vault -> brain_ok=true
-2. Write/Shell/Task : brain_ok requis (pas de tunnel Read)
-3. Surface reparation (.cursor/hooks, rules, tests/hooks) : toujours writable
-4. failClosed: false — erreur hook = allow (jamais brick)
-5. Audit methodo : stop-depth-audit (followup, non bloquant)
-6. ENFORCEMENT_MAINTENANCE=1 : break-glass
+2. Write/Shell/Delete/Task ordinaires : brain_ok + **tunnel Read session** (`Test-BrainTunnelOk` — juste milieu V17 restaure)
+3. Write proteges (specs/spec+plan, docs, AGENTS) : tunnel + reflection-proof
+4. Write connaissances/ : librarian_used (library_traverse) requis
+5. Fuite L5 (chat analytique sans cerveau) : stop-depth-audit followup si pas de librarian **ce tour** — non bloquant
+6. Digest stale (session longue) : stop regenere 00-brain-active + followup
+7. Surface reparation (.cursor/hooks, rules, tests/hooks) : toujours writable
+8. failClosed: false — erreur hook = allow (jamais brick)
+9. ENFORCEMENT_MAINTENANCE=1 : break-glass

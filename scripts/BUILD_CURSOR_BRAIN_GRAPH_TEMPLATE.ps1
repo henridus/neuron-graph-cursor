@@ -5,8 +5,18 @@ param(
 )
 $ErrorActionPreference = 'Stop'
 
-if (Test-Path $OutRoot) { Remove-Item $OutRoot -Recurse -Force }
-New-Item -ItemType Directory -Path $OutRoot -Force | Out-Null
+$hasGit = Test-Path (Join-Path $OutRoot '.git')
+if (Test-Path $OutRoot) {
+    if ($hasGit) {
+        # Preserve .git — sync into existing clone (republication V20+)
+        Get-ChildItem $OutRoot -Force | Where-Object { $_.Name -ne '.git' } | Remove-Item -Recurse -Force -ErrorAction SilentlyContinue
+    } else {
+        Remove-Item $OutRoot -Recurse -Force
+        New-Item -ItemType Directory -Path $OutRoot -Force | Out-Null
+    }
+} else {
+    New-Item -ItemType Directory -Path $OutRoot -Force | Out-Null
+}
 
 function Copy-Rel([string]$rel) {
     $from = Join-Path $CanonRoot $rel
@@ -41,6 +51,8 @@ Copy-Rel '.agents\skills\brain-traverse\SKILL.md'
 Copy-Rel 'tests\hooks\RUN_HOOK_TESTS.ps1'
 Copy-Rel 'tests\hooks\SIMULATE_LIBRARIAN_TERRAIN.ps1'
 Copy-Rel 'tests\hooks\RUN_TERRAIN_BRAIN_V17.ps1'
+Copy-Rel 'tests\hooks\RUN_TERRAIN_BRAIN_V18.ps1'
+Copy-Rel 'tests\hooks\RUN_TERRAIN_BRAIN_V20.ps1'
 Copy-Rel 'tests\hooks\test-skill-gate.ps1'
 Copy-Rel 'template\README.md'
 Copy-Rel 'template\LICENSE'

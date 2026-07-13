@@ -1,4 +1,4 @@
-# Delete V18 — tunnel requis (E1)
+# Delete V20 — tunnel requis (E1)
 $ErrorActionPreference = 'SilentlyContinue'
 if ($env:ENFORCEMENT_MAINTENANCE -eq '1') { '{"permission":"allow"}' | Write-Output; exit 0 }
 try {
@@ -11,6 +11,7 @@ try {
     if (Test-DeleteAllowPath $t) { Out-Allow }
     $root = Get-ProjectRoot $(if ($in.cwd) { $in.cwd } else { (Get-Location).Path })
     if (-not (Test-BrainActive $root)) { Out-Deny 'Brain non charge' 'sessionStart requis.' }
+    # V20: restore tunnel Read session (juste milieu V17)
     if (-not (Test-BrainTunnelOk $root)) { Out-Deny 'Tunnel cerveau incomplet' 'Lire requiredReads vault avant Delete.' }
     if (-not (Test-BrainOkLoaded $root)) { Out-Deny 'Brain non charge' 'sessionStart requis.' }
     Out-Deny 'Delete non autorise' 'hors carve-out'

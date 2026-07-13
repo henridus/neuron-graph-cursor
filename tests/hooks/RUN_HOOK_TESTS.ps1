@@ -1,4 +1,7 @@
-# Tests paliers hooks command fleet V11 — H1-H30
+# Tests paliers hooks command fleet V11 — H1-H30 (+ H44 OpenLoop)
+param(
+    [switch]$SkipOpenLoop
+)
 $ErrorActionPreference = 'Stop'
 $AgentPathEarly = (Resolve-Path (Join-Path $PSScriptRoot '..\..')).Path
 function Restore-AgentGates {
@@ -558,7 +561,7 @@ if ($spec36) {
     Assert-Deny $r36 'H36' 'Tunnel cerveau incomplet'
 } else { Write-Host 'SKIP H36 no spec.md' }
 
-Write-Host '=== Palier H37: deny spec avec reflection seule sans unlock ==='
+Write-Host '=== Palier H37: deny spec avec reflection seule sans tunnel ==='
 Reset-SessionReads $AgentPath
 $rd = Join-Path $AgentPath '.cursor\research'
 if (-not (Test-Path $rd)) { New-Item -ItemType Directory -Path $rd -Force | Out-Null }
@@ -671,7 +674,25 @@ if ([int]$g43.librarian_calls -lt 2) {
 }
 Write-Host 'PASS H43'
 
-Write-Host 'HOOK TESTS PASS (43 paliers fleet V18)'
+$olTerrain = Join-Path $AgentPath 'tests\hooks\RUN_TERRAIN_OPENLOOP_003.ps1'
+if (-not $SkipOpenLoop -and (Test-Path $olTerrain)) {
+    Write-Host '=== Palier H44: OpenLoop terrain OL1-OL8 (nested skip full hooks) ==='
+    $env:OPENLOOP_NESTED = '1'
+    & powershell -NoProfile -ExecutionPolicy Bypass -File $olTerrain -SkipHookTests
+    $olCode = $LASTEXITCODE
+    Remove-Item Env:OPENLOOP_NESTED -ErrorAction SilentlyContinue
+    if ($olCode -ne 0) {
+        Write-Host "FAIL H44 OpenLoop terrain exit=$olCode"
+        exit 1
+    }
+    Write-Host 'PASS H44'
+} elseif ($SkipOpenLoop) {
+    Write-Host 'SKIP H44 OpenLoop (-SkipOpenLoop)'
+} else {
+    Write-Host 'SKIP H44 OpenLoop (pilot 003 uniquement, RUN_TERRAIN_OPENLOOP_003.ps1 absent sur cet agent)'
+}
+
+Write-Host 'HOOK TESTS PASS (43+ paliers fleet V18)'
 Restore-AgentGates
 
 
