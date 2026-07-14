@@ -1,0 +1,30 @@
+# Copier vers ~/.hermes/config.yaml et ajuster les chemins.
+# Hermes MCP client natif — doc:
+# https://hermes-agent.nousresearch.com/docs/user-guide/features/mcp
+#
+# librarian-mcp (MIT, ngmeyer) = moteur graphe du vault AgentMemory.
+# Meme outil que Cursor (user-librarian). Process LOCAL uniquement.
+#
+# Windows (dev) exemple:
+#   command: C:\Users\henri\AppData\Local\librarian-mcp\librarian-mcp.exe
+# WSL (si binaire windows via interop — preferer binaire linux):
+#   command: /mnt/c/Users/henri/AppData/Local/librarian-mcp/librarian-mcp.exe
+# Oracle linux-arm64:
+#   command: /home/ubuntu/bin/librarian-mcp
+#
+# Args vault : selon CLI de ta version librarian-mcp
+# (verifier `librarian-mcp --help` / release notes ngmeyer).
+# Souvent : chemin vault en arg, ou env LIBRARIAN_VAULT / --setup.
+
+mcp_servers:
+  librarian:
+    command: "/home/ubuntu/bin/librarian-mcp"
+    args: []
+    # Si la version exige le vault en args, exemple :
+    # args: ["--vault", "/home/ubuntu/AgentMemory"]
+    env:
+      # Adapter au flag reel de ta release
+      LIBRARIAN_VAULT: "/home/ubuntu/AgentMemory"
+
+# Apres copie : hermes chat puis demander une traversee MAP-openclaw
+# Preuve : citation neurone reel (ex. agent-repond-sans-cerveau-chat)
