@@ -133,6 +133,8 @@ function Write-Gates([string]$Root, [hashtable]$Data) {
     $out | ConvertTo-Json -Depth 4 | Set-Content $path -Encoding UTF8
 }
 function Test-BrainTunnelSessionFresh([string]$Root, $GateObj) {
+    # V21 juste milieu : le tunnel ORDINAIRE = requiredReads charges cette session (digest).
+    # spec_read/mdc_read ne sont PLUS exiges ici (reserves aux Writes proteges via reflection-proof).
     if (-not $GateObj) { return $false }
     if ([string]::IsNullOrWhiteSpace([string]$GateObj.session_started)) { return $false }
     try { $sessionAt = [datetime]::Parse([string]$GateObj.session_started) } catch { return $false }
@@ -148,16 +150,20 @@ function Test-BrainTunnelSessionFresh([string]$Root, $GateObj) {
         if ([string]::IsNullOrWhiteSpace([string]$at)) { return $false }
         try { if ([datetime]::Parse([string]$at) -lt $sessionAt) { return $false } } catch { return $false }
     }
-    $domainFlag = if ($GateObj.spec_read -eq $true) { 'spec_read' } elseif ($GateObj.mdc_read -eq $true) { 'mdc_read' } else { return $false }
-    $dat = & $getAt $domainFlag
-    if ([string]::IsNullOrWhiteSpace([string]$dat)) { return $false }
-    try { return ([datetime]::Parse([string]$dat) -ge $sessionAt) } catch { return $false }
+    return $true
 }
 function Test-BrainTunnelOkFromGates([string]$Root, $GateObj) {
     if (-not (Test-BrainActive $Root)) { return $false }
     foreach ($flag in (Get-BrainTunnelFlagNames $Root)) { if ($GateObj.$flag -ne $true) { return $false } }
-    if (-not (($GateObj.spec_read -eq $true) -or ($GateObj.mdc_read -eq $true))) { return $false }
     return (Test-BrainTunnelSessionFresh $Root $GateObj)
+}
+function Stamp-BrainReadsFresh([string]$Root) {
+    # V21 : sessionStart charge le digest a partir des requiredReads -> estampiller les flags
+    # tunnel avec timestamps >= session_started, pour que la session naisse tunnel=true
+    # (zero RECOVERY_UNLOCK manuel). C'est le fix de la "serrure sans cle".
+    $data = @{}
+    foreach ($flag in (Get-BrainTunnelFlagNames $Root)) { $data[$flag] = $true }
+    Write-Gates $Root $data
 }
 function Test-BrainTunnelOk([string]$Root) { $g = Read-Gates $Root; if (-not $g) { return $false }; return Test-BrainTunnelOkFromGates $Root $g }
 function Enforce-DiskTriageGate([string]$Root, [string]$ActionLabel) {
@@ -595,6 +601,9 @@ function Test-LibrarianUsedThisTurn([string]$Root) {
 function Clear-LibrarianUsedThisTurn([string]$Root) {
     Write-Gates $Root @{ librarian_used_this_turn = $false }
 }
+function Clear-BrainInjectedThisTurn([string]$Root) {
+    Write-Gates $Root @{ brain_injected_this_turn = $false }
+}
 function Test-BrainDigestStale([string]$Root, [double]$MaxHours = 12) {
     $g = Read-Gates $Root
     if (-not $g) { return $true }
@@ -625,14 +634,16 @@ function Invoke-BrainDigestRefresh([string]$Root) {
     try {
         $null = & powershell -NoProfile -ExecutionPolicy Bypass -File $brainScript -Payload '{}' 2>&1
         $now = (Get-Date -Format o)
-        # Force relecture tunnel: nouvelles timestamps session + flags read a false
-        Reset-SessionReads $Root
+        # V21 : le refresh recharge le digest (brain-load) -> nouvelle fenetre session +
+        # re-estampiller les flags tunnel (NE PAS reset a false, sinon on re-brique le tunnel).
         Write-Gates $Root @{
             brain_ok = $true
+            session_started = $now
             brain_digest_at = $now
             brain_loaded_at = $now
             librarian_used_this_turn = $false
         }
+        Stamp-BrainReadsFresh $Root
         return $true
     } catch { return $false }
 }

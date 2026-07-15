@@ -1,15 +1,22 @@
 ---
 alwaysApply: true
-description: "Gates V20 anti-brick"
+description: "Gates V21 anti-brick + per-turn freshness"
 ---
-# Enforcement Gates V20
+# Enforcement Gates V21
 
-1. sessionStart : brain-load injecte **digest reel** vault -> brain_ok=true
-2. Write/Shell/Delete/Task ordinaires : brain_ok + **tunnel Read session** (`Test-BrainTunnelOk` — juste milieu V17 restaure)
-3. Write proteges (specs/spec+plan, docs, AGENTS) : tunnel + reflection-proof
-4. Write connaissances/ : librarian_used (library_traverse) requis
-5. Fuite L5 (chat analytique sans cerveau) : stop-depth-audit followup si pas de librarian **ce tour** — non bloquant
-6. Digest stale (session longue) : stop regenere 00-brain-active + followup
-7. Surface reparation (.cursor/hooks, rules, tests/hooks) : toujours writable
-8. failClosed: false — erreur hook = allow (jamais brick)
-9. ENFORCEMENT_MAINTENANCE=1 : break-glass
+1. sessionStart : brain-load injecte **digest reel** + estampille les flags `_read` -> session nait `brain_ok=true` ET `brain_tunnel_ok=true` (fin de la "serrure sans cle")
+2. **postToolUse** `inject-brain-turn` : re-injecte un rappel cerveau + rafraichit le digest si stale, **1x/tour** (seul point d'injection per-turn ; sessionStart ne refire pas sur session longue)
+3. Write/Shell/Delete/Task ordinaires : `brain_ok` + tunnel = requiredReads charges cette session (NON brickant apres une vraie session)
+4. Write proteges (specs spec/plan, docs, AGENTS, .cursor/rules, hooks, tests) : tunnel + **reflection-proof** (spec/mdc + competence) + unlock gouvernance
+5. Write connaissances/ : `librarian_used` (library_traverse) requis
+6. Fuite L5 (chat analytique sans cerveau) : stop-depth-audit followup si pas de librarian **ce tour** — non bloquant
+7. Digest stale (>8h ou jour different) : stop + inject-brain-turn regenerent 00-brain-active (re-estampille, ne re-brique pas)
+8. Surface reparation (.cursor/hooks, rules, tests/hooks) : writable via unlock/maintenance
+9. failClosed: false — erreur hook ou stdin vide = allow (jamais brick)
+10. ENFORCEMENT_MAINTENANCE=1 : break-glass
+
+## Regle d'or (anti-regression V19)
+
+Ne jamais "aligner le code sur une doc plus permissive" sans preuve terrain. Le juste milieu est
+valide par `tests/hooks/RUN_TERRAIN_SESSION_REAL.ps1` (vraie session, zero flag pose a la main).
+Voir `erreurs/agent-repond-sans-cerveau-chat`.

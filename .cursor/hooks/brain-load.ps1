@@ -57,6 +57,9 @@ $sections += "## PROFIL`n" + (Read-BrainSection $vaultPath 'users/henri-dusonche
 $sections += "## ERREURS`n" + (Read-BrainSection $vaultPath 'erreurs/INDEX.md' 1500)
 $sections += "## AGENT`n" + (Read-BrainSection $vaultPath $agentNote 1000)
 $sections += "## cursor-skills`n" + (Read-BrainSection $vaultPath 'domains/cursor-skills/INDEX.md' 800)
+$sections += "## bibliotheque`n" + (Read-BrainSection $vaultPath 'domains/bibliotheque/INDEX.md' 600)
+$agentsMd = Join-Path $projectRoot 'AGENTS.md'
+if (Test-Path $agentsMd) { try { $sections += "## AGENTS`n" + (Truncate-BrainText (Get-Content $agentsMd -Raw -Encoding UTF8) 800) } catch { } }
 $handoff = Join-Path $vaultPath 'sessions\_HANDOFF.md'
 if (Test-Path $handoff) {
     $hf = Get-Item $handoff
@@ -67,11 +70,11 @@ $digest = ($sections | Where-Object { $_ -and $_.Trim().Length -gt 10 }) -join "
 $digest = Truncate-BrainText $digest 4500
 $rulePath = Join-Path $projectRoot '.cursor\rules\00-brain-active.mdc'
 $ruleLines = @(
-    '---','alwaysApply: true','description: "Brain V17 - traversee graphe + digest injecte sessionStart"','---','',
+    '---','alwaysApply: true','description: "Brain V21 - traversee graphe + digest injecte + rappel per-turn"','---','',
     "# Brain Active - $agentId",'',"Domaine detecte: $domainHint (entree: $entryMap)", '',
     $tier0, '',
-    '## Regle V17','Cerveau-graphe (librarian-mcp). Entrer par un MAP, cheminer, tracer le chemin (regle 49).',
-    'Hooks anti-brick: fail-open, pas de tunnel Read. Audit trace au stop.', '',
+    '## Regle V21','Cerveau-graphe (librarian-mcp). Entrer par un MAP, cheminer, tracer le chemin (regle 49).',
+    'Rappel per-turn injecte par postToolUse ; digest rafraichi si stale. Le digest n''est PAS une traversee.', '',
     "## Vault: $vaultPath", '', '## Digest (extrait)', $digest
 )
 [System.IO.File]::WriteAllText($rulePath, ($ruleLines -join "`n"), [Text.UTF8Encoding]::new($false))
@@ -79,5 +82,5 @@ $metaDir = Join-Path $projectRoot '.cursor\research'
 if (-not (Test-Path $metaDir)) { New-Item -ItemType Directory -Path $metaDir -Force | Out-Null }
 @{ agentId=$agentId; domain=$domainHint; entry_map=$entryMap; at=(Get-Date -Format o); digest_chars=$digest.Length; vault_ok=(Test-Path $vaultPath) } |
     ConvertTo-Json -Compress | Set-Content (Join-Path $metaDir 'brain-digest-meta.json') -Encoding UTF8
-$ctx = "BRAIN V17 graphe agentId=$agentId domaine=$domainHint entree=$entryMap`n`n$tier0`n`n$digest"
+$ctx = "BRAIN V21 graphe agentId=$agentId domaine=$domainHint entree=$entryMap`n`n$tier0`n`n$digest"
 @{ continue = $true; additional_context = $ctx; load_status = @{ vault_ok = (Test-Path $vaultPath); digest_injected = $true; entry_map = $entryMap } } | ConvertTo-Json -Compress -Depth 4 | Write-Output

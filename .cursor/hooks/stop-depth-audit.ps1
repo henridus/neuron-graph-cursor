@@ -26,6 +26,7 @@ try {
 if ($status -eq 'aborted') { exit 0 }
 if ($loopCount -ge 2) {
     try { Clear-LibrarianUsedThisTurn $projectRoot } catch { }
+    try { Clear-BrainInjectedThisTurn $projectRoot } catch { }
     exit 0
 }
 
@@ -34,9 +35,9 @@ $gates = Join-Path $projectRoot '.cursor\agent-gates.json'
 $reasons = @()
 $staleReason = $null
 
-# V20: digest stale sur session longue -> refresh + followup
+# V21: digest stale sur session longue -> refresh + followup (seuil abaisse 8h + jour different)
 try {
-    if (Test-BrainDigestStale $projectRoot 12) {
+    if (Test-BrainDigestStale $projectRoot 8) {
         $ok = Invoke-BrainDigestRefresh $projectRoot
         if ($ok) {
             $staleReason = 'cerveau rafraichi (digest sessionStart perime) — re-lire MAP/erreurs avant de continuer'
@@ -70,8 +71,9 @@ if (-not [string]::IsNullOrWhiteSpace($assistantText)) {
     }
 }
 
-# Reset flag tour pour le prochain stop
+# Reset flags tour pour le prochain stop
 try { Clear-LibrarianUsedThisTurn $projectRoot } catch { }
+try { Clear-BrainInjectedThisTurn $projectRoot } catch { }
 
 if ($reasons.Count -eq 0 -and -not $traceReason -and -not $l5Reason -and -not $staleReason) { exit 0 }
 $parts = @()

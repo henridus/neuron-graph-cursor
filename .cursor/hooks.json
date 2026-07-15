@@ -39,6 +39,13 @@
                                          "failClosed":  false
                                      }
                                  ],
+                  "postToolUse":  [
+                                      {
+                                          "command":  "powershell -NoProfile -ExecutionPolicy Bypass -File .cursor/hooks/inject-brain-turn.ps1",
+                                          "timeout":  10,
+                                          "failClosed":  false
+                                      }
+                                  ],
                   "beforeShellExecution":  [
                                                {
                                                    "matcher":  "GO_PI_SD|FLASH_PI_SD|rpi-imager|PhysicalDriveNumber",

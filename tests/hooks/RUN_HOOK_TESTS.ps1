@@ -80,10 +80,14 @@ function Assert-Allow($r, $label) {
 
 function New-ReadTimestamps([bool]$Spec=$true,[bool]$Mdc=$false){$n=(Get-Date -Format o);$ts=@{vault_index_read=$n;user_profile_read=$n;erreurs_index_read=$n;biblio_index_read=$n;skills_index_read=$n;agent_note_read=$n;handoff_read=$n;agents_md_read=$n};if($Spec){$ts.spec_read=$n};if($Mdc){$ts.mdc_read=$n};return $ts}
 function Set-PartialTunnelGates([bool]$Spec = $false, [bool]$Mdc = $false) {
+    # V21 : le tunnel ORDINAIRE = requiredReads complets (spec/mdc reserve au protege).
+    # Reset-SessionReads d'abord (sinon merge avec un etat complet precedent -> tunnel=true a tort)
+    # puis on laisse volontairement des requiredReads MANQUANTS (vault_index/erreurs/agent_note/handoff)
+    # pour que brain_tunnel_ok reste false et que la gate DENY.
     . (Join-Path $Hooks '_hook-io.ps1')
+    Reset-SessionReads $AgentPath
     Write-Gates $AgentPath @{
         brain_ok = $true
-        session_started = (Get-Date).AddMinutes(-5).ToString('o')
         agents_md_read = $true
         skills_index_read = $true
         spec_read = $Spec
@@ -229,7 +233,10 @@ $jVerify = @{
 $r = Invoke-Gate (Join-Path $Hooks 'gate-shell-triage.ps1') $jVerify
 Assert-Allow $r 'H8'
 
-Write-Host '=== Palier H9: sessionStart brain_ok sans triage_ok ==='
+Write-Host '=== Palier H9: sessionStart nait sain (V21: tunnel=true + reads estampilles, spec non lu) ==='
+# V21 juste milieu : la session doit naitre tunnel=true (fin de la "serrure sans cle").
+# brain-load lit reellement les requiredReads (digest) -> flags estampilles (PAS fake).
+# En revanche spec_read reste false (aucune spec domaine lue au demarrage) et trust_brain absent.
 Remove-Item $Gates -Force -ErrorAction SilentlyContinue
 if (-not (Test-Path $Brain)) { '{"alwaysApply":true}' | Set-Content $Brain -Encoding UTF8 }
 $env:CURSOR_HOOK_TEST_INPUT = '{}'
@@ -248,14 +255,15 @@ if (-not (Test-Path $Gates)) {
     exit 1
 }
 $g9 = Get-Content $Gates -Raw | ConvertFrom-Json
-if ($g9.brain_ok -ne $true -or $g9.triage_ok -eq $true -or $g9.spec_read -eq $true) {
-    Write-Host "FAIL H9 brain_ok=$($g9.brain_ok) triage_ok=$($g9.triage_ok) spec_read=$($g9.spec_read)"
+if ($g9.brain_ok -ne $true -or $g9.brain_tunnel_ok -ne $true) {
+    Write-Host "FAIL H9 brain_ok=$($g9.brain_ok) brain_tunnel_ok=$($g9.brain_tunnel_ok) (session doit naitre saine)"
     exit 1
 }
-if ($g9.agents_md_read -eq $true -or $g9.skills_index_read -eq $true) {
-    Write-Host "FAIL H9 fake read flags agents=$($g9.agents_md_read) skills=$($g9.skills_index_read)"
+if ($g9.spec_read -eq $true) {
+    Write-Host "FAIL H9 spec_read=$($g9.spec_read) (aucune spec domaine lue au demarrage)"
     exit 1
 }
+# brain_tunnel_ok=true implique deja tous les flags tunnel estampilles fresh (config-agnostique)
 if ($g9.trust_brain -eq $true) {
     Write-Host 'FAIL H9 trust_brain still set'
     exit 1
